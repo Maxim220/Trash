@@ -9,23 +9,23 @@ int find_nok(int a, int b);
 
 class Fraction {
         ll_int dividend;
-      //~~~~~~~~~~~~~
+      //~~~~~~~~~~~~~~~~
         ll_int divider;
     public:
         void reduce();
         void read();
         void show();
-        bool operator > (  Fraction& second );
-        bool operator < (  Fraction& second );
-        bool operator == (  Fraction& second );
+        bool operator > ( const Fraction& second );
+        bool operator < ( const  Fraction& second );
+        bool operator == ( const  Fraction& second );
         Fraction operator - ();
-        Fraction operator + (  int second );
-        Fraction operator + (  Fraction second );
-        Fraction operator - (  Fraction& second );
-        Fraction operator * (  Fraction& second );
-        Fraction operator / (  Fraction& second );
-        Fraction operator % (  Fraction& second );
-        Fraction& operator = (  Fraction& second );
+        Fraction operator + ( int second );
+        Fraction operator + ( const Fraction second );
+        Fraction operator - ( const Fraction& second );
+        Fraction operator * ( const Fraction& second );
+        Fraction operator / ( const Fraction& second );
+        Fraction operator % ( const Fraction& second );
+        Fraction& operator = ( const Fraction& second );
         friend istream& operator >> ( istream& input, Fraction& fract );
         friend ostream& operator << ( ostream& output, const Fraction& fract );
         Fraction( ll_int dividend = 0, ll_int divider = 1 );
@@ -81,30 +81,32 @@ void Fraction::show() {
 
 
 void Fraction::reduce() {
-    if ( !dividend || !divider ) {
+    ll_int nod = find_nod( dividend, divider );
+    if ( nod ) {
+        dividend /= nod;
+        divider /= nod;
+    }
+    else {
         dividend = 0;
         divider = 1;
-        return;
     }
-    ll_int nod = find_nod( dividend, divider );
-    dividend /= nod;
-    divider /= nod;
 }
 
 
-bool Fraction::operator <( Fraction &second) {
+bool Fraction::operator <(const Fraction &second) {
     ll_int nok = find_nok( this->divider, second.divider );
     return ( this->dividend * (nok / this->divider) ) < ( second.dividend * (nok / second.divider) ) ;
 }
-bool Fraction::operator >( Fraction &second) {
+
+bool Fraction::operator >(const Fraction &second) {
     ll_int nok = find_nok( this->divider, second.divider );
     return ( this->dividend * (nok / this->divider) ) > ( second.dividend * (nok / second.divider) ) ;
 }
-bool Fraction::operator ==( Fraction &second) {
-    this->reduce();
-    second.reduce();
-    return (this->dividend == second.dividend) && (this->divider == second.divider);
+
+bool Fraction::operator ==(const Fraction &second) {
+    return (this->dividend * second.divider) == (this->divider * second.dividend);
 }
+
 Fraction Fraction::operator -(){
     return Fraction( this->dividend * (-1), this->divider );
 }
@@ -114,29 +116,32 @@ Fraction Fraction::operator +(int second) {
 }
 
 
-
-
-Fraction Fraction::operator +( Fraction second) {
+Fraction Fraction::operator +(const Fraction second) {
     ll_int nok = find_nok( this->divider, second.divider );
     return Fraction( ( this->dividend * (nok / this->divider) + second.dividend * (nok / second.divider) ), nok );
 }
-Fraction Fraction::operator -( Fraction &second) {
+
+Fraction Fraction::operator -(const Fraction &second) {
     return ( (*this) + (-second)  );
 }
-Fraction Fraction::operator *( Fraction &second) {
+
+Fraction Fraction::operator *(const Fraction &second) {
     return Fraction( (this->dividend * second.dividend), (this->divider * second.divider) );
 }
-Fraction Fraction::operator /( Fraction &second) {
+
+Fraction Fraction::operator /(const Fraction &second) {
     return Fraction( (this->dividend * second.divider), (this->divider * second.dividend) );
 }
-Fraction Fraction::operator %( Fraction &second) {
+
+Fraction Fraction::operator %(const Fraction &second) {
     ll_int nok = find_nok( this->divider, second.divider );
     return Fraction( ( ( this->dividend * (nok / this->divider) ) % ( second.dividend * (nok / second.divider) ) ), nok);
 }
-Fraction &Fraction::operator =(Fraction &second) {
-    second.reduce();
+
+Fraction &Fraction::operator =(const Fraction &second) {
     this->dividend = second.dividend;
     this->divider = second.divider;
+    this->reduce();
     return (*this);
 }
 
@@ -146,11 +151,11 @@ istream &operator >>(istream &input, Fraction& fract) {
     input >> (fract.dividend) >> trash >> (fract.divider);
     return input;
 }
+
 ostream &operator <<(ostream &output, const Fraction& fract) {
     output << (fract.dividend) << '/' << (fract.divider);
     return output;
 }
-
 
 
 Fraction::Fraction(ll_int dividend, ll_int divider) {
